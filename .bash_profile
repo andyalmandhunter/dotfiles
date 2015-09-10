@@ -27,3 +27,10 @@ function a
 }
 export EDITOR=~/bin/ec.sh
 alias e="$EDITOR"
+
+# Powerline:
+powerline-daemon -q
+POWERLINE_BASH_CONTINUATION=1
+POWERLINE_BASH_SELECT=1
+XDG_CONFIG_HOME=/Users/ahunter/.config
+. /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/powerline/bindings/bash/powerline.sh
