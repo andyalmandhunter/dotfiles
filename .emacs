@@ -81,6 +81,7 @@
 
 ;;; Make it easier to identify current window at a glance
 (menu-bar-mode -1)
+(set-face-background 'mode-line-inactive "black")
 
 
 ;;; Lua mode
