@@ -11,6 +11,20 @@
 (display-time-mode 1)
 
 
+;;; Color themes
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(load-theme 'sunburst t)
+
+
+;;; Keep buffers opened when leaving an emacs client
+(setq server-kill-new-buffers nil)
+
+
+;;; Set PATH and exec-path
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+(setq exec-path (append exec-path '("/usr/local/bin")))
+
+
 ;;; Yasnippet
 (add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-0.8.0")
 (require 'yasnippet)
@@ -67,9 +81,6 @@
 
 ;;; Make it easier to identify current window at a glance
 (menu-bar-mode -1)
-(set-face-background 'mode-line-inactive "black")
-(set-face-foreground 'mode-line-inactive "white")
-(set-face-background 'mode-line "orange")
 
 
 ;;; Lua mode

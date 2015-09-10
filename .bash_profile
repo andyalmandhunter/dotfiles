@@ -25,4 +25,5 @@ function a
     done
     open -a /Applications/Aquamacs.app "$@"
 }
-alias e="emacs"
+export EDITOR=~/bin/ec.sh
+alias e="$EDITOR"
