@@ -13,7 +13,8 @@
 
 ;;; Color themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'sunburst t)
+(require 'color-theme-sanityinc-tomorrow)
+(load-theme 'spolsky t)
 
 
 ;;; Keep buffers opened when leaving an emacs client
