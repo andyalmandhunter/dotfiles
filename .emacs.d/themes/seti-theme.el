@@ -112,8 +112,8 @@
    `(dired-warning ((t (:inherit (font-lock-warning-face)))))
 
    ;; Lines
-   `(linum ((t (:foreground ,text-4  :weight light :height 0.9))))
-   `(fringe ((t (:background ,background-3 :foreground ,text-4))))
+   `(linum ((t (:foreground ,text-4 :background ,background :weight light :height 0.9))))
+   `(fringe ((t (:background ,background :foreground ,text-4))))
    `(left-margin ((t (nil))))
    `(hl-line ((t (:background ,background-4)))))
 
