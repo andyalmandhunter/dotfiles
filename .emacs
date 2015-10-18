@@ -13,8 +13,7 @@
 
 ;;; Color themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(require 'color-theme-sanityinc-tomorrow)
-(load-theme 'spolsky t)
+(load-theme 'seti t)
 
 
 ;;; Keep buffers opened when leaving an emacs client
@@ -22,8 +21,9 @@
 
 
 ;;; Set PATH and exec-path
-(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+(setenv "PATH" (concat "/Library/Frameworks/Python.framework/Versions/2.7/bin:/usr/local/bin:" (getenv "PATH")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
+(setq exec-path (append exec-path '("/Library/Frameworks/Python.framework/Versions/2.7/bin")))
 
 
 ;;; Yasnippet
@@ -50,10 +50,6 @@
 (setq mouse-sel-mode t)
 
 
-;; ;;; CSV mode
-;; (require 'csv-mode)
-
-
 ;;; Web mode
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.htm[l]?\\'" . web-mode))
@@ -63,6 +59,7 @@
 (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
 (setq web-mode-markup-indent-offset 2)
 (setq web-mode-css-indent-offset 2)
+(set-face-attribute 'web-mode-html-tag-bracket-face nil :foreground "Snow3")
 
 
 ;;; Shortcut for linum mode
@@ -79,7 +76,6 @@
   (propertize (format linum-format-fmt line) 'face 'linum))
 (unless window-system
   (setq linum-format 'linum-format-func))
-
 
 ;;; Org Mode
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
@@ -132,7 +128,70 @@
 (add-hook 'prog-mode-hook 'subword-mode)
 
 
+;; SQL
+;; http://truongtx.me/2014/08/23/setup-emacs-as-an-sql-database-client/
+(setq sql-postgres-program "psql"
+      sql-send-terminator t)
+
+(defun aeh/sql-mode-hook ()
+  (abbrev-mode 1)
+  ;; Make underscore a word character so that abbrev stops expanding send_count to send_COUNT
+  (modify-syntax-entry ?_ "w" sql-mode-syntax-table)
+  (when (file-exists-p "~/.sql-abbreviations")
+    (load "~/.sql-abbreviations")))
+
+(defun aeh/sql-interactive-mode-hook ()
+  (toggle-truncate-lines t))
+
+(defun sql-in-code-context-p ()
+  (if (fboundp 'buffer-syntactic-context) ; XEmacs function.
+       (null (buffer-syntactic-context))
+     ;; Attempt to simulate buffer-syntactic-context
+     ;; I don't know how reliable this is.
+     (let* ((beg (save-excursion
+ 		  (beginning-of-line)
+ 		  (point)))
+ 	   (list
+ 	    (parse-partial-sexp beg (point))))
+       (and (null (nth 3 list))		; inside string.
+ 	   (null (nth 4 list))))))	; inside cocmment
+
+(defun sql-pre-abbrev-expand-hook ()
+  ;; Allow our abbrevs only in a code context.
+  (setq local-abbrev-table
+        (if (sql-in-code-context-p)
+            sql-mode-abbrev-table)))
+
+;; stop asking whether to save newly added abbrev when quitting emacs
+(setq save-abbrevs nil)
+
+
 ;;; ESS Mode
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/ess")
 (load "ess-site")
 (require 'ess-site)
+
+
+;;; MELPA
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+(package-initialize)
+
+
+;;; Elpy (Python)
+(elpy-enable)
+(setq elpy-rpc-python-command
+      "/Library/Frameworks/Python.framework/Versions/2.7/bin/python")
+(elpy-use-ipython)
+(setq elpy-modules
+      (delete 'elpy-module-highlight-indentation elpy-modules))
+(global-set-key "\C-cf" 'flymake-mode)
+
+
+;;; Highlight-indentation-mode
+(require 'highlight-indentation)
+(set-face-background 'highlight-indentation-face "#222")
+(global-set-key "\C-ch" 'highlight-indentation-mode)
