@@ -48,6 +48,7 @@
       (text-2 "#858D8A")
       (text-3 "#41535B")
       (text-4 "#2F3C42")
+      (text-5 "#404040")
       (text-highlight "#FFFFFF")
       (text-region "#434546")
       (text-dired "#A0A0A0")
@@ -65,10 +66,10 @@
    `(highlight ((t (:background ,text-highlight))))
    `(minibuffer-prompt ((t (:foreground ,dark-blue :weight bold))))
    `(region ((t (:background ,text-region))))
-   `(error ((t (:foreground ,red :weight bold)))) ; :underline (:color ,red :style line)
+   `(error ((t (:foreground ,red :weight bold :underline (:color ,red :style line)))))
 
-   `(isearch ((t (:background ,background :foreground ,text :box (:line-width 1 :color ,dark-blue) :weight bold))))
-   `(lazy-highlight ((t (:background ,background :foreground ,text-2 :box (:line-width 1 :color ,dark-blue)))))
+   `(isearch ((t (:background ,text-region :foreground ,text :weight bold))))
+   `(lazy-highlight ((t (:background ,text-region :foreground ,text-2))))
    `(mode-line ((t (:foreground ,text :background ,mode-line-bg)))) ;  :underline (:color ,dark-blue :style line)
    `(mode-line-buffer-id ((t (:weight bold :foreground ,white))))
    `(mode-line-emphasis ((t (:weight bold))))
@@ -98,8 +99,8 @@
    `(font-lock-warning-face ((t (:weight bold :inherit (error)))))
 
    ;; Parens
-   `(show-paren-match ((t (:foreground ,text-2)))) ;  :underline (:color ,dark-blue :style line)
-   `(show-paren-mismatch ((t (:foreground ,text-2)))) ;  :underline (:color ,red :style line)
+   `(show-paren-match ((t (:background ,text-region :foreground ,text-2 :underline (:color ,dark-blue :style line)))))
+   `(show-paren-mismatch ((t (:background ,text-region :foreground ,text-2 :underline (:color ,red :style line)))))
 
    ;; Dired
    `(dired-directory ((t (:foreground ,text :weight extrabold))))
@@ -112,8 +113,8 @@
    `(dired-warning ((t (:inherit (font-lock-warning-face)))))
 
    ;; Lines
-   `(linum ((t (:foreground ,text-4 :background ,background :weight light :height 0.9))))
-   `(fringe ((t (:background ,background :foreground ,text-4))))
+   `(linum ((t (:foreground ,text-5 :background ,background :weight light :height 0.9))))
+   `(fringe ((t (:background ,background :foreground ,text-5))))
    `(left-margin ((t (nil))))
    `(hl-line ((t (:background ,background-4)))))
 

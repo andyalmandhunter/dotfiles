@@ -1,5 +1,4 @@
-;;;; .emacs
-;;;   Andy Almand-Hunter
+;;; .emacs --- Andy Almand-Hunter
 
 ;;; General config options
 (add-to-list 'load-path "~/.emacs.d/lisp/")
@@ -13,7 +12,15 @@
 
 ;;; Color themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(add-to-list 'custom-theme-load-path "~/repos/emacs-color-theme-solarized/")
 (load-theme 'seti t)
+(defun toggle-background ()
+  (interactive)
+  (let ((mode (if (eq frame-background-mode 'dark) 'light 'dark)))
+    (setq frame-background-mode mode)
+    (setq terminal-background-mode mode))
+  (enable-theme 'solarized))
+(global-set-key "\C-cb" 'toggle-background)
 
 
 ;;; Keep buffers opened when leaving an emacs client
@@ -48,18 +55,6 @@
                             (scroll-up 1)))
 (defun track-mouse (e))
 (setq mouse-sel-mode t)
-
-
-;;; Web mode
-(require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.htm[l]?\\'" . web-mode))
-(setq web-mode-engines-alist '(("django" . "\\.htm[l]?\\'")))
-(add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
-(setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
-(add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
-(setq web-mode-markup-indent-offset 2)
-(setq web-mode-css-indent-offset 2)
-(set-face-attribute 'web-mode-html-tag-bracket-face nil :foreground "Snow3")
 
 
 ;;; Shortcut for linum mode
@@ -126,6 +121,7 @@
 ;; Subword mode makes it easier to work with camel-case and snake-
 ;; case variables
 (add-hook 'prog-mode-hook 'subword-mode)
+(add-hook 'prog-mode-hook 'highlight-parentheses-mode)
 
 
 ;; SQL
@@ -162,6 +158,11 @@
         (if (sql-in-code-context-p)
             sql-mode-abbrev-table)))
 
+(add-hook 'sql-mode-hook 'aeh/sql-mode-hook)
+(add-hook 'sql-interactive-mode-hook 'aeh/sql-mode-hook)
+(add-hook 'sql-interactive-mode-hook 'aeh/sql-interactive-mode-hook)
+(add-hook 'pre-abbrev-expand-hook 'sql-pre-abbrev-expand-hook)
+
 ;; stop asking whether to save newly added abbrev when quitting emacs
 (setq save-abbrevs nil)
 
@@ -187,7 +188,8 @@
       "/Library/Frameworks/Python.framework/Versions/2.7/bin/python")
 (elpy-use-ipython)
 (setq elpy-modules
-      (delete 'elpy-module-highlight-indentation elpy-modules))
+      (delete 'flymake-mode
+              (delete 'elpy-module-highlight-indentation elpy-modules)))
 (global-set-key "\C-cf" 'flymake-mode)
 
 
@@ -195,3 +197,34 @@
 (require 'highlight-indentation)
 (set-face-background 'highlight-indentation-face "#222")
 (global-set-key "\C-ch" 'highlight-indentation-mode)
+
+
+;;; Highlight-parentheses-mode
+(require 'highlight-parentheses)
+(global-set-key "\C-cp" 'highlight-parentheses-mode)
+
+
+;;; Web mode
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.htm[l]?\\'" . web-mode))
+(setq web-mode-engines-alist '(("django" . "\\.htm[l]?\\'")))
+(add-to-list 'auto-mode-alist '("\\.[s]?css\\'" . web-mode))
+(setq web-mode-markup-indent-offset 2)
+(setq web-mode-css-indent-offset 2)
+(setq web-mode-code-indent-offset 2)
+(setq web-mode-html-offset 4)
+
+;; .js and .jsx
+(add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
+(setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+
+(require 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode)
+(setq-default flycheck-disabled-checkers
+              (append flycheck-disabled-checkers
+                      '(javascript-jshint)))
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+(setq-default flycheck-disabled-checkers
+              (append flycheck-disabled-checkers
+                      '(json-jsonlist)))
+(global-set-key "\C-cj" 'flycheck-mode)
