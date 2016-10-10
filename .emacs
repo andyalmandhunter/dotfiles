@@ -1,43 +1,56 @@
+;;; package --- Summary
+;;; Commentary:
 ;;; .emacs --- Andy Almand-Hunter
+
+;;; Code:
 
 ;;; General config options
 (add-to-list 'load-path "~/.emacs.d/lisp/")
+(add-to-list 'default-frame-alist '(height . 52))
+(add-to-list 'default-frame-alist '(width . 80))
+
 (setq transient-mark-mode t)
 (setq global-auto-revert-mode t)
 (setq column-number-mode t)
 (setq-default indent-tabs-mode nil)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (display-time-mode 1)
+(global-set-key "\C-cr" 'revert-buffer)
 
 
 ;;; Color themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 (add-to-list 'custom-theme-load-path "~/repos/emacs-color-theme-solarized/")
-(load-theme 'seti t)
-(defun toggle-background ()
-  (interactive)
-  (let ((mode (if (eq frame-background-mode 'dark) 'light 'dark)))
-    (setq frame-background-mode mode)
-    (setq terminal-background-mode mode))
-  (enable-theme 'solarized))
-(global-set-key "\C-cb" 'toggle-background)
+(when window-system
+  (load-theme 'monokai t))
+(unless window-system
+  (load-theme 'seti t))
+;; (defun toggle-background ()
+;;   (interactive)
+;;   (let ((mode (if (eq frame-background-mode 'dark) 'light 'dark)))
+;;     (setq frame-background-mode mode)
+;;     (setq terminal-background-mode mode))
+;;   (enable-theme 'solarized))
+;; (global-set-key "\C-cb" 'toggle-background)
 
 
 ;;; Fonts (For GUI.  In the terminal just use the terminal font)
 (when window-system
-  (add-to-list 'default-frame-alist '(font . "Hack"))
+  (add-to-list 'default-frame-alist '(font . "Hack-11"))
   (setq-default cursor-type 'box)
   (blink-cursor-mode 0))
 
 
-;;; Keep buffers opened when leaving an emacs client
-(setq server-kill-new-buffers nil)
-
-
 ;;; Set PATH and exec-path
-(setenv "PATH" (concat "/Library/Frameworks/Python.framework/Versions/2.7/bin:/usr/local/bin:" (getenv "PATH")))
+(setenv "PATH" (concat "/Library/Frameworks/Python.framework/Versions/2.7/bin:/usr/local/bin:/Library/TeX/texbin:/Users/ahunter/bin:" (getenv "PATH")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
+(setq exec-path (append exec-path '("/Library/TeX/texbin")))
 (setq exec-path (append exec-path '("/Library/Frameworks/Python.framework/Versions/2.7/bin")))
+(setq exec-path (append exec-path '("/Users/ahunter/bin")))
+
+
+;; Use Emacs terminfo, not system terminfo
+(setq system-uses-terminfo nil)
 
 
 ;;; Yasnippet
@@ -81,9 +94,23 @@
   (unless window-system
     (setq linum-format 'linum-format-func)))
 
+;;; Fix font scaling with linum mode
+(defun linum-update-window-scale-fix (win)
+  "fix linum for scaled text"
+  (set-window-margins win
+		      (ceiling (* (if (boundp 'text-scale-mode-step)
+				      (expt text-scale-mode-step
+					    text-scale-mode-amount) 1)
+				  (if (car (window-margins))
+				      (car (window-margins)) 1)
+				  ))))
+(advice-add #'linum-update-window :after #'linum-update-window-scale-fix)
+
+
 ;;; Org Mode
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-
+(setq org-startup-indented t)
+(global-set-key "\C-ca" 'org-agenda)
 
 ;;; Markdown mode
 (autoload 'markdown-mode "markdown-mode"
@@ -181,7 +208,7 @@
 
 
 ;;; ESS Mode
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/ess")
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/ess")
 (load "ess-site")
 (require 'ess-site)
 
@@ -200,21 +227,24 @@
 (setq elpy-rpc-python-command
       "/Library/Frameworks/Python.framework/Versions/2.7/bin/python")
 (elpy-use-ipython)
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "--simple-prompt -i")
 (setq elpy-modules
-      (delete 'flymake-mode
-              (delete 'elpy-module-highlight-indentation elpy-modules)))
-(global-set-key "\C-cf" 'flymake-mode)
+      (delete 'elpy-module-highlight-indentation elpy-modules))
+(remove-hook 'elpy-modules 'elpy-module-flymake)
 
 
 ;;; Highlight-indentation-mode
 (require 'highlight-indentation)
-(set-face-background 'highlight-indentation-face "#222")
+(unless window-system
+  (set-face-background 'highlight-indentation-face "#222"))
 (global-set-key "\C-ch" 'highlight-indentation-mode)
 
 
 ;;; Highlight-parentheses-mode
 (require 'highlight-parentheses)
 (global-set-key "\C-cp" 'highlight-parentheses-mode)
+(show-paren-mode 1)
 
 
 ;;; Web mode
@@ -222,14 +252,17 @@
 (add-to-list 'auto-mode-alist '("\\.htm[l]?\\'" . web-mode))
 (setq web-mode-engines-alist '(("django" . "\\.htm[l]?\\'")))
 (add-to-list 'auto-mode-alist '("\\.[s]?css\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.json\\'" . web-mode))
 (setq web-mode-markup-indent-offset 2)
 (setq web-mode-css-indent-offset 2)
 (setq web-mode-code-indent-offset 2)
 (setq web-mode-html-offset 4)
+(add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
 
 ;; .js and .jsx
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
-(setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+(setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")
+                                     ("json" . "\\.json\\'")))
 
 (require 'flycheck)
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -241,3 +274,21 @@
               (append flycheck-disabled-checkers
                       '(json-jsonlist)))
 (global-set-key "\C-cj" 'flycheck-mode)
+
+
+;; AucTeX
+(when window-system
+  (load "auctex.el" nil t t)
+  (load "preview-latex.el" nil t t)
+  (setq TeX-master "master"))
+
+
+;; Mac stuff
+(setq mac-option-modifier 'meta)
+(setq mac-command-modifier nil)
+(setq mac-emulate-three-button-mouse t)
+
+
+;; Magit
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
