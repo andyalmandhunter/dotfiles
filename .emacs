@@ -1,10 +1,13 @@
 ;;; .emacs --- Andy Almand-Hunter
+;;; Commentary:
 
+;;; Code:
 ;;; General config options
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 (add-to-list 'default-frame-alist '(height . 52))
 (add-to-list 'default-frame-alist '(width . 80))
 
+(setq shell-file-name "/bin/bash")
 (setq transient-mark-mode t)
 (setq global-auto-revert-mode t)
 (setq column-number-mode t)
@@ -18,11 +21,14 @@
                        "/usr/local/bin:"
                        "/Library/TeX/texbin:"
                        "/Users/ahunter/bin:"
+                       "/Users/ahunter/.nvm/versions/node/v6.11.1/bin:"
                        (getenv "PATH")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 (setq exec-path (append exec-path '("/Library/TeX/texbin")))
 (setq exec-path (append exec-path '("/Library/Frameworks/Python.framework/Versions/2.7/bin")))
 (setq exec-path (append exec-path '("/Users/ahunter/bin")))
+(setq exec-path (append exec-path '("/Users/ahunter/.nvm/versions/node/v6.11.1/bin")))
+
 
 ;; Package manager
 (require 'package)
@@ -93,6 +99,13 @@
 ;; typing 'yes' is too hard
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; Multiple cursors
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
 ;;; Imports
 (load-file "~/.emacs.d/init/theme.el")
 (load-file "~/.emacs.d/init/font.el")
@@ -106,3 +119,22 @@
 (load-file "~/.emacs.d/init/org.el")
 (load-file "~/.emacs.d/init/win_switch.el")
 (load-file "~/.emacs.d/init/helm.el")
+
+;; Fancy Org-mode Bullets
+(use-package org-bullets
+  :commands org-bullets-mode
+  :init
+  (add-hook 'org-mode-hook 'org-bullets-mode))
+
+;; Visual regexp
+(use-package visual-regexp
+  :config
+  (define-key global-map (kbd "C-c r") 'vr/replace)
+  (define-key global-map (kbd "C-c q") 'vr/query-replace)
+  ;; if you use multiple-cursors, this is for you:
+  (define-key global-map (kbd "C-c m") 'vr/mc-mark))
+
+;;; Company mode
+(add-hook 'after-init-hook 'global-company-mode)
+(setq company-dabbrev-downcase nil)
+(add-to-list 'company-backends 'company-jedi)

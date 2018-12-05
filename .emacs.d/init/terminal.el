@@ -1,3 +1,7 @@
+;;; ternimal --- Andy Almand-Hunter
+;;; Commentary:
+
+;;; Code:
 ;;; Emacs Powerline
 (unless window-system
   (require 'powerline)
@@ -29,3 +33,5 @@
     (propertize (format linum-format-fmt line) 'face 'linum))
   (unless window-system
     (setq linum-format 'linum-format-func)))
+
+;;; terminal.el ends here

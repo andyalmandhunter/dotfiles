@@ -1,31 +1,96 @@
+;;; languages --- Andy Almand-Hunter
+;;; Commentary:
+
+;;; Code:
 ;;; Lua mode
 (autoload 'lua-mode "lua-mode" "Lua editing mode." t)
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
 ;;; ESS Mode
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/ess")
-(load "ess-site")
-(require 'ess-site)
+(require 'key-combo)
+(key-combo-mode 1)
+(add-hook 'ess-mode-hook
+          '(lambda()
+             (key-combo-mode t)))
+(add-hook 'inferior-ess-mode-hook
+          '(lambda()
+             (key-combo-mode t)))
+(defvar key-combo-ess-default
+  '((">"  . (" > " " %>% "))
+    ("$"  . ("$" " %$% "))
+    ("<>" . " %<>% ")
+    ("*"  . ("*" " * "))
+    ("%" . ("%" "%*%" "%%"))
+    ("^"  . ("^" " ^ "))
+    ("/"  . ("/" " / "))
+    ("~" . " ~ ")
+    (":" . (":" "::" ":::"))
+    (":="  . " := ") ; data.table
+    ("->"  . " -> ")))
+(key-combo-define-hook '(ess-mode-hook inferior-ess-mode-hook)
+                       'ess-key-combo-load-default
+                       key-combo-ess-default)
+(setq ess-default-style 'DEFAULT)
 
 ;;; Elpy (Python)
-(elpy-enable)
-(setq elpy-rpc-python-command
-      "/Library/Frameworks/Python.framework/Versions/2.7/bin/python")
-(setq elpy-modules
-      (delete 'elpy-module-highlight-indentation elpy-modules))
-(remove-hook 'elpy-modules 'elpy-module-flymake)
+(use-package elpy
+  :init
+  (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+  :config
+  (setq elpy-rpc-backend "jedi")
+  (setq elpy-modules (delete 'elpy-module-highlight-indentation elpy-modules))
+  (remove-hook 'elpy-modules 'elpy-module-flymake))
+
+(use-package python
+  :mode ("\\.py" . python-mode)
+  :config
+  (setq python-indent-offset 4)
+  (elpy-enable))
+
+(use-package pyenv-mode
+  :init
+  (setq exec-path (cons "~/.pyenv/shims" exec-path))
+  (setenv "WORKON_HOME" "~/.pyenv/versions/")
+  :config
+  (pyenv-mode)
+  :bind
+  ("C-x p e" . pyenv-activate-current-project))
+
+(defun pyenv-activate-current-project ()
+  "Automatically activates pyenv version if .python-version file exists."
+  (interactive)
+  (let ((python-version-directory (locate-dominating-file (buffer-file-name) ".python-version")))
+    (if python-version-directory
+        (let* ((pyenv-version-path (f-expand ".python-version" python-version-directory))
+               (pyenv-current-version (s-trim (f-read-text pyenv-version-path 'utf-8))))
+          (pyenv-mode-set pyenv-current-version)
+          (message (concat "Setting virtualenv to " pyenv-current-version))))))
+
+(defvar pyenv-current-version nil nil)
+
+(defun pyenv-init()
+  "Initialize pyenv's current version to the global one."
+  (let ((global-pyenv (replace-regexp-in-string "\n" "" (shell-command-to-string "pyenv global"))))
+    (message (concat "Setting pyenv version to " global-pyenv))
+    (pyenv-mode-set global-pyenv)
+    (setq pyenv-current-version global-pyenv)))
+
+(add-hook 'after-init-hook 'pyenv-init)
 
 ;;; Web mode
 (require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.htm[l]?\\'" . web-mode))
-(setq web-mode-engines-alist '(("django" . "\\.htm[l]?\\'")))
-(add-to-list 'auto-mode-alist '("\\.[s]?css\\'" . web-mode))
 (setq web-mode-markup-indent-offset 2)
 (setq web-mode-css-indent-offset 2)
 (setq web-mode-code-indent-offset 2)
-(setq web-mode-html-offset 4)
+(setq web-mode-html-offset 2)
+(setq web-mode-attr-indent-offset 2)
+(setq web-mode-attr-value-indent-offset 2)
+(setq web-mode-enable-auto-quoting nil)
 (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
+
+;; CSS and SCSS
+(setq css-indent-offset 2)
 
 ;; .js and .jsx
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
@@ -49,3 +114,5 @@
             (make-local-variable 'js-indent-level)
             (setq js-indent-level 2)))
 (add-to-list 'auto-mode-alist '("\\.ddl\\'" . json-mode))
+
+;;; languages.el ends here

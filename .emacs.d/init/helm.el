@@ -1,3 +1,7 @@
+;;; helm --- Andy Almand-Hunter
+;;; Commentary:
+
+;;; Code:
 ;; Helm
 (require 'helm)
 (require 'helm-config)
@@ -22,3 +26,5 @@
 (projectile-global-mode)
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
+
+;;; helm ends here
