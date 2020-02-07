@@ -1,0 +1,6 @@
+# key: map
+# name: map
+# --
+$1.map do |$2|
+  $0
+end

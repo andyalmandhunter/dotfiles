@@ -1,0 +1,7 @@
+# key: init
+# name: init
+# --
+def initialize($1)
+  ${1:$(mapconcat (lambda (f) (concat "@" f " = " f))
+                  (split-string yas-text " *," t " *") "\n")}$0
+end

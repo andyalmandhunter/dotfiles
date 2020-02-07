@@ -3,9 +3,9 @@
 
 ;;; Code:
 ;;; Emacs Powerline
-(unless window-system
-  (require 'powerline)
-  (powerline-default-theme))
+;; (unless window-system
+;;   (require 'powerline)
+;;   (powerline-default-theme))
 
 
 ;;; Mouse in iTerm2

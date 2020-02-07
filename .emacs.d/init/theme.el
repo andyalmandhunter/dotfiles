@@ -5,9 +5,12 @@
 ;;; Color themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 (when window-system
-  (load-theme 'monokai t))
-(unless window-system
-  (load-theme 'monokai t))
+  ;; (load-theme 'moe-dark t))
+  (require 'moe-theme)
+  (moe-dark)
+  (powerline-moe-theme))
+;; (unless window-system
+;;   (powerline-default-theme))
 ;; (defun toggle-background ()
 ;;   (interactive)
 ;;   (let ((mode (if (eq frame-background-mode 'dark) 'light 'dark)))

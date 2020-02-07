@@ -1,0 +1,6 @@
+# key: def
+# name: def
+# --
+def ${1:method}${2:($3)}
+  $0
+end

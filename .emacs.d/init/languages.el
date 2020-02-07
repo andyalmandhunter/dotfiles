@@ -89,18 +89,27 @@
 (setq web-mode-enable-auto-quoting nil)
 (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
 
+;; Prettier
+(defun enable-minor-mode (my-pair)
+  "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
+  (if (buffer-file-name)
+      (if (string-match (car my-pair) buffer-file-name)
+          (funcall (cdr my-pair)))))
+
+(add-hook 'web-mode-hook #'(lambda ()
+                             (enable-minor-mode
+                              '("\\.jsx?\\'" . prettier-js-mode))))
+
+(eval-after-load 'web-mode
+  '(progn
+     (add-hook 'web-mode-hook #'add-node-modules-path)))
+
 ;; CSS and SCSS
 (setq css-indent-offset 2)
 
 ;; .js and .jsx
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
 (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
-
-;; AucTeX
-(when window-system
-  (load "auctex.el" nil t t)
-  (load "preview-latex.el" nil t t)
-  (setq TeX-master "master"))
 
 ;;; Markdown mode
 (autoload 'markdown-mode "markdown-mode"
@@ -114,5 +123,30 @@
             (make-local-variable 'js-indent-level)
             (setq js-indent-level 2)))
 (add-to-list 'auto-mode-alist '("\\.ddl\\'" . json-mode))
+
+;;; JavaScript
+(setq js-indent-level 2)
+
+;;; CoffeeScript
+(custom-set-variables '(coffee-tab-width 2))
+
+;;; Ruby
+(setq ruby-insert-encoding-magic-comment nil)
+(add-hook 'after-init-hook 'inf-ruby-switch-setup)
+(add-to-list 'auto-mode-alist '("\\.rb\\'" . enh-ruby-mode))
+(setq enh-ruby-deep-indent-paren nil)
+(setq enh-ruby-deep-indent-construct nil)
+
+;;; YAML
+(require 'yaml-mode)
+
+;;; Golang
+(add-hook 'go-mode-hook
+          (lambda ()
+            (setq tab-width 4)))
+
+
+;;; HTTP requests
+(add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
 
 ;;; languages.el ends here

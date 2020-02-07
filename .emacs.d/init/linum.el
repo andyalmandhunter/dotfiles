@@ -3,8 +3,8 @@
 
 ;;; Code:
 ;;; Shortcut for linum mode
-(require 'linum)
-(global-set-key "\C-cn" 'linum-mode)
+;; (require 'linum)
+(global-set-key "\C-cn" 'display-line-numbers-mode)
 
 ;;; Fix font scaling with linum mode
 ;; (defun linum-update-window-scale-fix (win)
